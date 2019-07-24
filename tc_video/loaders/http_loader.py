@@ -62,8 +62,10 @@ def ffmpeg(context, uri, **flags):
             yield value
 
         yield from ('-i', uri)
+        yield from ('-filter:v', "select='eq(pict_type,PICT_TYPE_I)'", '-vsync', 'vfr')
         yield from ('-frames:v', '1')
         yield from ('-c:v', 'mjpeg')
+        yield from ('-qscale:v', '1')
         yield from ('-f', 'image2pipe', 'pipe:1')
 
     return subprocess.check_output(list(cmd()), stderr=subprocess.STDOUT)
