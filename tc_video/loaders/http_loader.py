@@ -80,15 +80,16 @@ def load(context, url, callback, normalize_url_func=_normalize_url):
         result.buffer = ffmpeg(context, normalize_url_func(url))
     except subprocess.CalledProcessError as err:
         result.successful = False
-        result.error = err.returncode
+        result.error = str(err)
 
-        message = err.output.strip().decode('utf-8')
-        if message.lower().endswith('Server returned 404 not found'.lower()):
-            result.error = LoaderResult.ERROR_NOT_FOUND
-        # result.error = LoaderResult.ERROR_TIMEOUT
-        # result.error = LoaderResult.ERROR_UPSTREAM
-
-        logger.warn(f'ERROR retrieving image {url}: {message}')
+        try:
+            message = err.output.decode('utf-8').strip()
+        except Exception as err:
+            pass
+        else:
+            logger.warn(f'ERROR retrieving image {url}: {message}')
+            if message.lower().endswith('Server returned 404 not found'.lower()):
+                result.error = LoaderResult.ERROR_NOT_FOUND
     except Exception as err:
         result.successful = False
         result.error = str(err)
