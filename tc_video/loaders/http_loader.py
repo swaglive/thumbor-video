@@ -82,14 +82,10 @@ def load(context, url, callback, normalize_url_func=_normalize_url):
         result.successful = False
         result.error = str(err)
 
-        try:
-            message = err.output.decode('utf-8').strip()
-        except Exception as err:
-            pass
-        else:
-            logger.warn(f'ERROR retrieving image {url}: {message}')
-            if message.lower().endswith('Server returned 404 not found'.lower()):
-                result.error = LoaderResult.ERROR_NOT_FOUND
+        message = err.output.decode('utf-8').strip()
+        logger.warn(f'ERROR retrieving image {url}: {message}')
+        if message.lower().endswith('Server returned 404 not found'.lower()):
+            result.error = LoaderResult.ERROR_NOT_FOUND
     except Exception as err:
         result.successful = False
         result.error = str(err)
