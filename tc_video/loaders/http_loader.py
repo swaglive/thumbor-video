@@ -54,7 +54,7 @@ def ffmpeg(context, uri, **flags):
 
     def cmd():
         yield context.config.FFMPEG_PATH
-        yield from ('-loglevel', 'fatal')
+        yield from ('-loglevel', 'error')
         yield '-nostats'
 
         for flag, value in flags():
