@@ -68,7 +68,7 @@ def ffmpeg(context, uri, **flags):
         yield from ('-qscale:v', '1')
         yield from ('-f', 'image2pipe', 'pipe:1')
 
-    return subprocess.check_output(list(cmd()), stderr=subprocess.STDOUT)
+    return subprocess.check_output(list(cmd()), stderr=subprocess.PIPE)
 
 
 @return_future
@@ -80,11 +80,10 @@ def load(context, url, callback, normalize_url_func=_normalize_url):
         result.buffer = ffmpeg(context, normalize_url_func(url))
     except subprocess.CalledProcessError as err:
         result.successful = False
-        result.error = str(err)
+        result.error = err.stderr.decode('utf-8').strip()
 
-        message = err.output.decode('utf-8').strip()
-        logger.warn(f'ERROR retrieving image {url}: {message}')
-        if message.lower().endswith('Server returned 404 not found'.lower()):
+        logger.warn(f'ERROR retrieving image {url}: {result.error}')
+        if result.error.lower().endswith('Server returned 404 not found'.lower()):
             result.error = LoaderResult.ERROR_NOT_FOUND
     except Exception as err:
         result.successful = False
